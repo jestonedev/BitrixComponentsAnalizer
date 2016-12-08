@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BitrixComponentsAnalizer.FilesAccess;
+﻿using System.IO;
+using BitrixComponentsAnalizer.FilesAccess.Interfaces;
 
 namespace UnitTests.FilesAccess
 {

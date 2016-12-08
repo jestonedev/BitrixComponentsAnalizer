@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace BitrixComponentsAnalizer.FilesAccess
+namespace BitrixComponentsAnalizer.FilesAccess.Interfaces
 {
     public interface IFileLoader
     {

@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using BitrixComponentsAnalizer.FilesAccess.Interfaces;
 
-namespace BitrixComponentsAnalizer.FilesAccess
+namespace BitrixComponentsAnalizer.FilesAccess.ValueObjects
 {
     public class SearchPath : ISearchPath
     {

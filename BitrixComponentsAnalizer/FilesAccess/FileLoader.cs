@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using BitrixComponentsAnalizer.FilesAccess.Interfaces;
+using File = BitrixComponentsAnalizer.FilesAccess.ValueObjects.File;
 
 namespace BitrixComponentsAnalizer.FilesAccess
 {

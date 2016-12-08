@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using BitrixComponentsAnalizer.FilesAccess;
+using BitrixComponentsAnalizer.FilesAccess.ValueObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using UnitTests.FilesAccess;
 

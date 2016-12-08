@@ -53,7 +53,7 @@
     <Compile Include="FilesAccessUnitTests.cs" />
     <Compile Include="FilesAccess\FakeDirectoryFetcher.cs" />
     <Compile Include="FilesAccess\FakeFileLoader.cs" />
-    <Compile Include="FilesAccess\FakeFileManager.cs" />
+    <Compile Include="FilesAccess\FakeFileFetcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BitrixInfrastrucutreTests.cs" />
   </ItemGroup>

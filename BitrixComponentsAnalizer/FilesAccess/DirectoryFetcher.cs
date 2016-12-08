@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using BitrixComponentsAnalizer.FilesAccess.Interfaces;
 
 namespace BitrixComponentsAnalizer.FilesAccess
 {

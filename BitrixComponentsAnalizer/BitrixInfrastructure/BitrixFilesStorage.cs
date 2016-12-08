@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using BitrixComponentsAnalizer.FilesAccess;
+using BitrixComponentsAnalizer.FilesAccess.Interfaces;
+using BitrixComponentsAnalizer.BitrixInfrastructure.Interfaces;
+using BitrixComponentsAnalizer.BitrixInfrastructure.ValueObjects;
 using Newtonsoft.Json;
 
 namespace BitrixComponentsAnalizer.BitrixInfrastructure
 {
     public class BitrixFilesStorage: IBitrixFilesStorage
     {
-        private readonly IFileManager _fileManager;
+        private readonly IFileFetcher _fileManager;
         private readonly string _storeJsonFileName;
 
-        public BitrixFilesStorage(string storeJsonFileName, IFileManager fileManager)
+        public BitrixFilesStorage(string storeJsonFileName, IFileFetcher fileManager)
         {
             if (fileManager == null)
             {
@@ -28,7 +29,7 @@ namespace BitrixComponentsAnalizer.BitrixInfrastructure
         public IEnumerable<BitrixFile> LoadFiles()
         {
             return JsonConvert.DeserializeObject<IEnumerable<BitrixFile>>
-                (_fileManager.LoadTextFile(_storeJsonFileName));
+                (_fileManager.ReadTextFile(_storeJsonFileName));
         }
 
         public void SaveFiles(IEnumerable<BitrixFile> files)
