@@ -7,7 +7,7 @@ using BitrixComponentsAnalizer.BitrixInfrastructure.ValueObjects;
 
 namespace BitrixComponentsAnalizer.BitrixInfrastructure
 {
-    public class BitrixFilesComponentsBinder
+    public class BitrixFilesComponentsBinder : IBitrixFilesComponentsBinder
     {
         private readonly IComponentsExtractor _componentExtractor;
         private readonly IFileFetcher _fileManager;
@@ -26,12 +26,15 @@ namespace BitrixComponentsAnalizer.BitrixInfrastructure
             _fileManager = fileManager;
         }
 
-        public IEnumerable<BitrixFile> BindComponents(IEnumerable<IFile> files)
+        public IEnumerable<BitrixFile> BindComponents(IEnumerable<IFile> files, Action<double, double> progressCallback)
         {
             var bitrixFiles = new List<BitrixFile>();
             var componentsBuffer = new List<BitrixComponent>();
-            foreach (var file in files)
+            var filesList = files.ToList();
+            var totalProgress = filesList.Count - 1;
+            for (var i = 0; i < filesList.Count; i++)
             {
+                var file = filesList[i];
                 var findedComponents = _componentExtractor.GetComponentsFromCode(
                     _fileManager.ReadTextFile(file.FileName)).ToList();
                 var bitrixFile = new BitrixFile
@@ -69,6 +72,7 @@ namespace BitrixComponentsAnalizer.BitrixInfrastructure
                 }
                 bitrixFile.Components = components.AsReadOnly();
                 bitrixFiles.Add(bitrixFile);
+                progressCallback(i, totalProgress);
             }
             return bitrixFiles;
         }

@@ -22,7 +22,7 @@ namespace UnitTests
                     AbsolutePath = "/",
                     IgnoreRelativePaths = new[] {"ignore", "/anydir/ignore"}
                 }
-            }, "*.php").ToList();
+            }, "*.php", (progressIntoPath, totalIntoPath, path) => {}).ToList();
             Assert.AreEqual(2, files.Count);
             Assert.AreEqual("/1.php", files[0].FileName);
             Assert.AreEqual("/anydir/any/fuck.php", files[1].FileName);

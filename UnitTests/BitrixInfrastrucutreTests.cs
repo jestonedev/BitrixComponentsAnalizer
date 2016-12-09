@@ -137,7 +137,7 @@ namespace UnitTests
                 {
                     FileName = "file3.php"
                 }
-            }).ToList();
+            }, (progress, total) => { }).ToList();
             Assert.AreEqual(3, files.Count);
             Assert.AreEqual(2, files[0].Components.Count);
             Assert.AreEqual("list", files[0].Components.ToList()[0].Name);
@@ -177,7 +177,7 @@ namespace UnitTests
                 {
                     FileName = "file3.php"
                 }
-            }).ToList();
+            }, (progress, total) => { }).ToList();
             Assert.AreEqual(2, files[0].Components[1].Files.Count);
             Assert.AreSame(files[0].Components[1], files[1].Components[0]);
         }
@@ -248,6 +248,42 @@ namespace UnitTests
                 Assert.AreEqual(bitrixFiles[1].Components.ToList()[0].Category,
                     loadedBitrixFiles[1].Components.ToList()[0].Category);
             }
+        }
+
+
+        [TestMethod]
+        public void TestBitrixHelper()
+        {
+            var fileManager = new FakeFileFetcher();
+            fileManager.WriteTextFile("file1.php", "<?$APPLICATION -> IncludeComponent\r\n " +
+                               "( \"bitrix:news\", \"list\", array(\r\n" +
+                               "\"IBLOCK_TYPE\" => \"feedback\",;\r\n" +
+                               "<?$APPLICATION -> IncludeComponent\r\n " +
+                               "( \"bitrix:news.list\", \"any\", array(\r\n" +
+                               "\"IBLOCK_TYPE\" => \"feedback\",;");
+            fileManager.WriteTextFile("file2.php", "<?\r\n" +
+                                "require($_SERVER[\"DOCUMENT_ROOT\"].\"/bitrix/header.php\");");
+            fileManager.WriteTextFile("file3.php", "<?$APPLICATION -> IncludeComponent\r\n " +
+                               "( \"bitrix:date.picker\", \"list.list\", array(\r\n" +
+                               "\"IBLOCK_TYPE\" => \"feedback\",;");
+            var bitrixFilesFilter = new BitrixFilesComponentsBinder(new BitrixComponentsExtractor(), fileManager);
+            var files = bitrixFilesFilter.BindComponents(new[]
+            {
+                new File
+                {
+                    FileName = "file1.php"
+                },
+                new File
+                {
+                    FileName = "file3.php"
+                }
+            }, (progress, total) => { }).ToList();
+            var components = BitrixHelper.InvertFilesAndComponentsCollection(files).ToList();
+            Assert.AreEqual(3, components.Count);
+            Assert.AreEqual(1, components[0].Files.Count);
+            Assert.AreEqual(1, components[1].Files.Count);
+            Assert.AreEqual(1, components[2].Files.Count);
+            Assert.AreEqual(components[1].Files[0], components[0].Files[0]);
         }
     }
 }

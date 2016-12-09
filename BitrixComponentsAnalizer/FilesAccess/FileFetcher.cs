@@ -1,4 +1,5 @@
-﻿using BitrixComponentsAnalizer.FilesAccess.Interfaces;
+﻿using System.IO;
+using BitrixComponentsAnalizer.FilesAccess.Interfaces;
 
 namespace BitrixComponentsAnalizer.FilesAccess
 {
@@ -6,12 +7,17 @@ namespace BitrixComponentsAnalizer.FilesAccess
     {
         public void WriteTextFile(string fileName, string text)
         {
-            System.IO.File.WriteAllText(fileName, text);
+            File.WriteAllText(fileName, text);
         }
 
         public string ReadTextFile(string fileName)
         {
-            return System.IO.File.ReadAllText(fileName);
+            return File.ReadAllText(fileName);
+        }
+
+        public bool FileExists(string fileName)
+        {
+            return File.Exists(fileName);
         }
     }
 }

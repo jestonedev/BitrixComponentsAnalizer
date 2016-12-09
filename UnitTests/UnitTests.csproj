@@ -50,12 +50,16 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="BitrixInfrastructure\FakeBitrixFilesStorage.cs" />
     <Compile Include="FilesAccessUnitTests.cs" />
+    <Compile Include="FilesAccess\FakeBitrixFilesComponentsBinder.cs" />
     <Compile Include="FilesAccess\FakeDirectoryFetcher.cs" />
     <Compile Include="FilesAccess\FakeFileLoader.cs" />
     <Compile Include="FilesAccess\FakeFileFetcher.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BitrixInfrastrucutreTests.cs" />
+    <Compile Include="MainWindowPresenterUnitTests.cs" />
+    <Compile Include="Views\FakeMainWindow.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BitrixComponentsAnalizer\BitrixComponentsAnalizer.csproj">
@@ -63,7 +67,9 @@
       <Name>BitrixComponentsAnalizer</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Presenters\" />
+  </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

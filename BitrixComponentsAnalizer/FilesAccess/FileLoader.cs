@@ -19,15 +19,18 @@ namespace BitrixComponentsAnalizer.FilesAccess
             _directoryFetcher = directoryFetcher;
         }
 
-        public IEnumerable<IFile> GetFiles(IEnumerable<ISearchPath> searchPath, string searchFileWildcard)
+        public IEnumerable<IFile> GetFiles(IEnumerable<ISearchPath> searchPath, string searchFileWildcard, 
+            Action<double, double, string> progressCallback)
         {
             var resultFiles = new List<File>();
             foreach (var path in searchPath)
             {
                 var findedFiles = _directoryFetcher.GetFiles(path.AbsolutePath,
                     searchFileWildcard, SearchOption.AllDirectories);
-                foreach (var findedFile in findedFiles)
+                var totalCount = findedFiles.Length - 1;
+                for (var i = 0; i < findedFiles.Length; i++)
                 {
+                    var findedFile = findedFiles[i];
                     var ignore = false;
                     foreach (var ignoreRelativePath in path.IgnoreRelativePaths)
                     {
@@ -43,6 +46,7 @@ namespace BitrixComponentsAnalizer.FilesAccess
                             FileName = findedFile
                         });
                     }
+                    progressCallback(i, totalCount, path.AbsolutePath);
                 }
             }
             return resultFiles;

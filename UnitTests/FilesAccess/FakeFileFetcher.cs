@@ -23,5 +23,11 @@ namespace UnitTests.FilesAccess
         {
             return _files.ContainsKey(fileName) ? _files[fileName] : null;
         }
+
+
+        public bool FileExists(string fileName)
+        {
+            return true;
+        }
     }
 }

@@ -4,5 +4,6 @@
     {
         void WriteTextFile(string fileName, string text);
         string ReadTextFile(string fileName);
+        bool FileExists(string fileName);
     }
 }
