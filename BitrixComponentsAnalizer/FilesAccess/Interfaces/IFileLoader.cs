@@ -6,6 +6,6 @@ namespace BitrixComponentsAnalizer.FilesAccess.Interfaces
     public interface IFileLoader
     {
         IEnumerable<IFile> GetFiles(IEnumerable<ISearchPath> searchPath, string searchFileWildcard, 
-            Action<double, double, string> progressCallback);
+            Action<double, double, bool, string> progressCallback);
     }
 }

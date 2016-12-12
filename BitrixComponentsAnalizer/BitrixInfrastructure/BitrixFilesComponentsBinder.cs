@@ -10,9 +10,9 @@ namespace BitrixComponentsAnalizer.BitrixInfrastructure
     public class BitrixFilesComponentsBinder : IBitrixFilesComponentsBinder
     {
         private readonly IComponentsExtractor _componentExtractor;
-        private readonly IFileFetcher _fileManager;
+        private readonly IFileSystem _fileManager;
 
-        public BitrixFilesComponentsBinder(IComponentsExtractor componentExtractor, IFileFetcher fileManager)
+        public BitrixFilesComponentsBinder(IComponentsExtractor componentExtractor, IFileSystem fileManager)
         {
             if (componentExtractor == null)
             {

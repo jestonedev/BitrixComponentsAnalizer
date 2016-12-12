@@ -3,7 +3,7 @@ using BitrixComponentsAnalizer.FilesAccess.Interfaces;
 
 namespace BitrixComponentsAnalizer.FilesAccess
 {
-    public class FileFetcher : IFileFetcher
+    public class FileSystem : IFileSystem
     {
         public void WriteTextFile(string fileName, string text)
         {
@@ -18,6 +18,16 @@ namespace BitrixComponentsAnalizer.FilesAccess
         public bool FileExists(string fileName)
         {
             return File.Exists(fileName);
+        }
+
+        public bool DirectoryExists(string path)
+        {
+            return Directory.Exists(path);
+        }
+
+        public string[] GetFiles(string path, string searchPattern, SearchOption searchOption)
+        {
+            return Directory.GetFiles(path, searchPattern, searchOption);
         }
     }
 }

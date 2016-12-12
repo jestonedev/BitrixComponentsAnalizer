@@ -35,7 +35,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PresentationCore" />
     <Reference Include="System" />
+    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -50,16 +52,18 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="BitrixInfrastructure\FakeBitrixFilesStorage.cs" />
-    <Compile Include="FilesAccessUnitTests.cs" />
-    <Compile Include="FilesAccess\FakeBitrixFilesComponentsBinder.cs" />
-    <Compile Include="FilesAccess\FakeDirectoryFetcher.cs" />
-    <Compile Include="FilesAccess\FakeFileLoader.cs" />
-    <Compile Include="FilesAccess\FakeFileFetcher.cs" />
+    <Compile Include="BitrixInfrastructure\StubBitrixFilesStorage.cs" />
+    <Compile Include="CommandsTests\AnalizeCommandTests.cs" />
+    <Compile Include="CommandsTests\SelectPathCommandTests.cs" />
+    <Compile Include="FilesAccess\FilesAccessUnitTests.cs" />
+    <Compile Include="FilesAccess\StubBitrixFilesComponentsBinder.cs" />
+    <Compile Include="FilesAccess\StubFileLoader.cs" />
+    <Compile Include="FilesAccess\StubFileSystem.cs" />
+    <Compile Include="FilesAccess\StubCancelFolderBrowserDialog.cs" />
+    <Compile Include="FilesAccess\StubFolderBrowserDialog.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="BitrixInfrastrucutreTests.cs" />
-    <Compile Include="MainWindowPresenterUnitTests.cs" />
-    <Compile Include="Views\FakeMainWindow.cs" />
+    <Compile Include="BitrixInfrastructure\BitrixInfrastrucutreTests.cs" />
+    <Compile Include="ViewModels\MainWindowViewModelUnitTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BitrixComponentsAnalizer\BitrixComponentsAnalizer.csproj">
@@ -67,9 +71,7 @@
       <Name>BitrixComponentsAnalizer</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Presenters\" />
-  </ItemGroup>
+  <ItemGroup />
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

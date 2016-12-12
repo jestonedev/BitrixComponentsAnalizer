@@ -10,10 +10,10 @@ namespace BitrixComponentsAnalizer.BitrixInfrastructure
 {
     public class BitrixFilesStorage: IBitrixFilesStorage
     {
-        private readonly IFileFetcher _fileFetcher;
+        private readonly IFileSystem _fileFetcher;
         private readonly string _storeJsonFileName;
 
-        public BitrixFilesStorage(string storeJsonFileName, IFileFetcher fileFetcher)
+        public BitrixFilesStorage(string storeJsonFileName, IFileSystem fileFetcher)
         {
             if (fileFetcher == null)
             {

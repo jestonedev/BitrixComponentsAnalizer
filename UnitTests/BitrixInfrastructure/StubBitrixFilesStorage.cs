@@ -4,7 +4,7 @@ using BitrixComponentsAnalizer.BitrixInfrastructure.ValueObjects;
 
 namespace UnitTests.BitrixInfrastructure
 {
-    internal class FakeBitrixFilesStorage : IBitrixFilesStorage
+    internal class StubBitrixFilesStorage : IBitrixFilesStorage
     {
         private IEnumerable<BitrixFile> _files;
 

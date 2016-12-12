@@ -3,9 +3,8 @@ using System.Linq;
 using BitrixComponentsAnalizer.FilesAccess;
 using BitrixComponentsAnalizer.FilesAccess.ValueObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using UnitTests.FilesAccess;
 
-namespace UnitTests
+namespace UnitTests.FilesAccess
 {
     [TestClass]
     public class FilesAccessUnitTests
@@ -13,16 +12,21 @@ namespace UnitTests
         [TestMethod]
         public void TestFileLoader()
         {
-            var directoryFetcher = new FakeDirectoryFetcher();
-            var fileLoader = new FileLoader(directoryFetcher);
+            var fileSystem = new StubFileSystem();
+            foreach (var fileName in new[] { "/1.php", "/ignore/text.php", "/ignore/any/text.php", 
+                "/anydir/ignore/fuck.php", "/anydir/any/fuck.php" })
+            {
+                fileSystem.WriteTextFile(fileName, "");
+            }
+            var fileLoader = new FileLoader(fileSystem);
             var files = fileLoader.GetFiles(new[]
             {
                 new SearchPath
                 {
                     AbsolutePath = "/",
-                    IgnoreRelativePaths = new[] {"ignore", "/anydir/ignore"}
+                    IgnoreRelativePaths = new[] {"ignore", "anydir/ignore"}
                 }
-            }, "*.php", (progressIntoPath, totalIntoPath, path) => {}).ToList();
+            }, "*.php", (progressIntoPath, totalIntoPath, isDeterministic, path) => {}).ToList();
             Assert.AreEqual(2, files.Count);
             Assert.AreEqual("/1.php", files[0].FileName);
             Assert.AreEqual("/anydir/any/fuck.php", files[1].FileName);

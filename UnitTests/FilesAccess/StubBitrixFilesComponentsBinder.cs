@@ -7,7 +7,7 @@ using BitrixComponentsAnalizer.FilesAccess.Interfaces;
 
 namespace UnitTests.FilesAccess
 {
-    class FakeBitrixFilesComponentsBinder: IBitrixFilesComponentsBinder
+    class StubBitrixFilesComponentsBinder: IBitrixFilesComponentsBinder
     {
         public IEnumerable<BitrixFile> BindComponents(IEnumerable<IFile> files, Action<double, double> progressCallback)
         {

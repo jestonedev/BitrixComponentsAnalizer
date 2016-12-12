@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using BitrixComponentsAnalizer.FilesAccess.Interfaces;
 
 namespace UnitTests.FilesAccess
 {
-    internal class FakeFileFetcher: IFileFetcher
+    internal class StubFileSystem: IFileSystem
     {
         private readonly Dictionary<string, string> _files = new Dictionary<string, string>();
 
@@ -27,7 +28,18 @@ namespace UnitTests.FilesAccess
 
         public bool FileExists(string fileName)
         {
+            return _files.ContainsKey(fileName);
+        }
+
+        public bool DirectoryExists(string path)
+        {
             return true;
+        }
+
+
+        public string[] GetFiles(string path, string searchPattern, System.IO.SearchOption searchOption)
+        {
+            return _files.Keys.ToArray();
         }
     }
 }

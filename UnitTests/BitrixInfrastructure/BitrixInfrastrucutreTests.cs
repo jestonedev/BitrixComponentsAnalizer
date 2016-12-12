@@ -7,7 +7,7 @@ using BitrixComponentsAnalizer.FilesAccess.ValueObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using UnitTests.FilesAccess;
 
-namespace UnitTests
+namespace UnitTests.BitrixInfrastructure
 {
     [TestClass]
     public class BitrixInfrastrucutreTests
@@ -97,7 +97,7 @@ namespace UnitTests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestBitrixFilesFilterNullExtractor()
         {
-            var bitrixFilesFilter = new BitrixFilesComponentsBinder(null, new FakeFileFetcher());
+            var bitrixFilesFilter = new BitrixFilesComponentsBinder(null, new StubFileSystem());
         }
 
         [TestMethod]
@@ -110,7 +110,7 @@ namespace UnitTests
         [TestMethod]
         public void TestBitrixFilesFilter()
         {
-            var fileManager = new FakeFileFetcher();
+            var fileManager = new StubFileSystem();
             var bitrixFilesFilter = new BitrixFilesComponentsBinder(new BitrixComponentsExtractor(), fileManager);
             fileManager.WriteTextFile("file1.php", "<?$APPLICATION -> IncludeComponent\r\n " +
                                "( \"bitrix:news\", \"list\", array(\r\n" +
@@ -156,7 +156,7 @@ namespace UnitTests
         [TestMethod]
         public void TestComponentsBindingBitrixFilesFilter()
         {
-            var fileManager = new FakeFileFetcher();
+            var fileManager = new StubFileSystem();
             var bitrixFilesFilter = new BitrixFilesComponentsBinder(new BitrixComponentsExtractor(), fileManager);
             fileManager.WriteTextFile("file1.php", "<?$APPLICATION -> IncludeComponent\r\n " +
                                "( \"bitrix:news\", \"list\", array(\r\n" +
@@ -193,13 +193,13 @@ namespace UnitTests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestBitrixFilesStorageNullFileName()
         {
-            var bitrixFilesStorage = new BitrixFilesStorage(null, new FakeFileFetcher());
+            var bitrixFilesStorage = new BitrixFilesStorage(null, new StubFileSystem());
         }
 
         [TestMethod]
-        public void TestBitrixFilesStorage()
+        public void TestBitrixFilesStorageRelative()
         {
-            var bitrixFilesStorage = new BitrixFilesStorage("1.json", new FakeFileFetcher());
+            var bitrixFilesStorage = new BitrixFilesStorage("1.json", new StubFileSystem());
             var bitrixFiles = new List<BitrixFile>
             {
                 new BitrixFile
@@ -235,26 +235,61 @@ namespace UnitTests
             }
             for (var i = 0; i < bitrixFiles.Count; i++)
             {
-                Assert.AreEqual(bitrixFiles[0].FileName, loadedBitrixFiles[0].FileName);
-                Assert.AreEqual(bitrixFiles[0].Components.Count, loadedBitrixFiles[0].Components.Count);
-                Assert.AreEqual(bitrixFiles[0].Components.ToList()[0].Name, 
-                    loadedBitrixFiles[0].Components.ToList()[0].Name);
-                Assert.AreEqual(bitrixFiles[0].Components.ToList()[0].Category,
-                    loadedBitrixFiles[0].Components.ToList()[0].Category);
-                Assert.AreEqual(bitrixFiles[1].FileName, loadedBitrixFiles[1].FileName);
-                Assert.AreEqual(bitrixFiles[1].Components.Count, loadedBitrixFiles[1].Components.Count);
-                Assert.AreEqual(bitrixFiles[1].Components.ToList()[0].Name,
-                    loadedBitrixFiles[1].Components.ToList()[0].Name);
-                Assert.AreEqual(bitrixFiles[1].Components.ToList()[0].Category,
-                    loadedBitrixFiles[1].Components.ToList()[0].Category);
+                Assert.AreEqual(bitrixFiles[i].FileName, loadedBitrixFiles[i].FileName);
+                Assert.AreEqual(bitrixFiles[i].Components.Count, loadedBitrixFiles[i].Components.Count);
+                Assert.AreEqual(bitrixFiles[i].Components.ToList()[0].Name,
+                    loadedBitrixFiles[i].Components.ToList()[0].Name);
+                Assert.AreEqual(bitrixFiles[i].Components.ToList()[0].Category,
+                    loadedBitrixFiles[i].Components.ToList()[0].Category);
             }
         }
 
+        [TestMethod]
+        public void TestBitrixFilesStorageAbsolute()
+        {
+            var fileSystem = new StubFileSystem();
+            var bitrixFilesStorage = new BitrixFilesStorage("/1.json", fileSystem);
+            var bitrixFiles = new List<BitrixFile>
+            {
+                new BitrixFile
+                {
+                    FileName = "1.php",
+                    Components = new List<BitrixComponent>
+                    {
+                        new BitrixComponent
+                        {
+                            Name = "list",
+                            Category = "bitrix:news"
+                        }
+                    }.AsReadOnly()
+                }
+            };
+            bitrixFilesStorage.SaveFiles(bitrixFiles);
+            var loadedBitrixFiles = bitrixFilesStorage.LoadFiles().ToList();
+            Assert.AreEqual(loadedBitrixFiles.Count, bitrixFiles.Count);
+            for (var i = 0; i < bitrixFiles.Count; i++)
+            {
+                Assert.AreEqual(bitrixFiles[i].FileName, loadedBitrixFiles[i].FileName);
+                Assert.AreEqual(bitrixFiles[i].Components.Count, loadedBitrixFiles[i].Components.Count);
+                Assert.AreEqual(bitrixFiles[i].Components.ToList()[0].Name,
+                    loadedBitrixFiles[i].Components.ToList()[0].Name);
+                Assert.AreEqual(bitrixFiles[i].Components.ToList()[0].Category,
+                    loadedBitrixFiles[i].Components.ToList()[0].Category);
+            }
+        }
+
+        [TestMethod]
+        public void TestBitrixFilesStorageFileNotFound()
+        {
+            var bitrixFilesStorage = new BitrixFilesStorage("/1.json", new StubFileSystem());
+            var storedFiles = bitrixFilesStorage.LoadFiles();
+            Assert.AreEqual(0, storedFiles.Count());
+        }
 
         [TestMethod]
         public void TestBitrixHelper()
         {
-            var fileManager = new FakeFileFetcher();
+            var fileManager = new StubFileSystem();
             fileManager.WriteTextFile("file1.php", "<?$APPLICATION -> IncludeComponent\r\n " +
                                "( \"bitrix:news\", \"list\", array(\r\n" +
                                "\"IBLOCK_TYPE\" => \"feedback\",;\r\n" +
@@ -284,6 +319,13 @@ namespace UnitTests
             Assert.AreEqual(1, components[1].Files.Count);
             Assert.AreEqual(1, components[2].Files.Count);
             Assert.AreEqual(components[1].Files[0], components[0].Files[0]);
+        }
+
+        [TestMethod]
+        public void TestBitrixHelperEmptyComponentsList()
+        {
+            var invertedList = BitrixHelper.InvertFilesAndComponentsCollection(new List<BitrixFile>());
+            Assert.AreEqual(0, invertedList.Count());
         }
     }
 }
