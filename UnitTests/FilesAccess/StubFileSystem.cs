@@ -33,7 +33,7 @@ namespace UnitTests.FilesAccess
 
         public bool DirectoryExists(string path)
         {
-            return true;
+            return path == null || !path.ToUpperInvariant().Contains("\\NOTEXISTS");
         }
 
 

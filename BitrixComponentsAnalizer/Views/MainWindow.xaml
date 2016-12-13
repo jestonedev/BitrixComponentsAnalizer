@@ -3,49 +3,87 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:viewmodels="clr-namespace:BitrixComponentsAnalizer.ViewModels"
         xmlns:valueObjects="clr-namespace:BitrixComponentsAnalizer.BitrixInfrastructure.ValueObjects"
-        Title="MainWindow" Loaded="MainWindow_OnLoaded" Height="350" Width="525" Name="Window">
+        Title="MainWindow" Loaded="MainWindow_OnLoaded" Height="350" Width="525" Name="Window"
+        Icon="{StaticResource AppIcon}" WindowState="Maximized" Closed="MainWindow_OnClosed">
     <Window.DataContext>
-        <viewmodels:MainWindowViewModel/>
+        <viewmodels:MainWindowViewModel />
     </Window.DataContext>
     <Grid Margin="5">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition Height="Auto"></RowDefinition>
-            <RowDefinition></RowDefinition>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition></ColumnDefinition>
-            <ColumnDefinition Width="Auto"></ColumnDefinition>
+            <ColumnDefinition />
+            <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <TextBox Name="SelectedPathTextBox" Text="{Binding SelectedPath}" Grid.Column="0" Grid.Row="0" Margin="5,0" IsReadOnly="True"></TextBox>
-        <Button Command="{Binding SelectPathCommand}" Name="SelectPathButton" Grid.Row="0" Grid.Column="1" Margin="5,0" Padding="5">Выбрать директорию</Button>
-        <TextBlock Margin="5" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding AnalizeProgressStatusMessage}"></TextBlock>
-        <ProgressBar IsIndeterminate="{Binding AnalizeProgressIsIndeterminate}" Maximum="{Binding AnalizeProgressTotal}" Value="{Binding AnalizeProgressCurrent}" 
-                     Grid.Row="2" Grid.Column="0" Margin="5,0"/>
-        <Button Command="{Binding AnalizeCommand}" CommandParameter="{Binding SelectedPath}" 
-                Name="Analize" Grid.Row="2" Grid.Column="1" Margin="5,0" Padding="5">Анализировать</Button>
-        <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2">
+        <TextBox Name="SelectedPathTextBox" Text="{Binding SelectedPath}"
+                 Grid.Column="0" Grid.Row="0" Margin="5,0" Padding="5" IsReadOnly="True" />
+        <Button Command="{Binding SelectPathCommand}" Name="SelectPathButton"
+                Grid.Row="0" Grid.Column="1" Margin="5,0" Padding="5">
+            Выбрать корневой каталог
+        </Button>
+        <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">Шаблоны</TextBlock>
+        <DataGrid Name="TemplatesDatGrid" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="5"
+                  ItemsSource="{Binding Path=Templates}"
+                  AutoGenerateColumns="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Width="*" Header="Имя" Binding="{Binding Path=Name}" />
+            </DataGrid.Columns>
+        </DataGrid>
+        <TextBlock Margin="5" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
+                   Text="{Binding AnalizeProgressStatusMessage}" />
+        <ProgressBar IsIndeterminate="{Binding AnalizeProgressIsIndeterminate}"
+                     Maximum="{Binding AnalizeProgressTotal}" Value="{Binding AnalizeProgressCurrent}"
+                     Grid.Row="4" Grid.Column="0" Margin="5,0" />
+        <Button Command="{Binding AnalizeCommand}" CommandParameter="{Binding SelectedPath}"
+                Name="Analize" Grid.Row="4" Grid.Column="1" Margin="5,0" Padding="5">
+            Анализировать
+        </Button>
+        <TextBlock Margin="5" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2">Поиск</TextBlock>
+        <TextBox Name="Filter" Text="{Binding Filter, UpdateSourceTrigger=PropertyChanged}"
+                 Grid.Column="0" Grid.Row="6" Grid.ColumnSpan="2" Margin="5,0" Padding="5" />
+        <Grid Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"></RowDefinition>
-                <RowDefinition></RowDefinition>
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition></ColumnDefinition>
-                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition />
+                <ColumnDefinition />
             </Grid.ColumnDefinitions>
             <Label Grid.Column="0" Grid.Row="0">Компоненты</Label>
             <Label Grid.Column="1" Grid.Row="0">Файлы</Label>
-            <DataGrid AutoGenerateColumns="False" IsReadOnly="True" ItemsSource="{Binding Path=Components}" Name="ComponentsDataGrid" Grid.Column="0" Grid.Row="1" Margin="5,0,5,5">
+            <DataGrid AutoGenerateColumns="False" IsReadOnly="True"
+                      DataContext="{Binding Path=FilteredComponents}"
+                      ItemsSource="{Binding Path=.}" Name="ComponentsDataGrid"
+                      Grid.Column="0" Grid.Row="1" Margin="5,0,5,5">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Width="*" Header="Имя" Binding="{Binding Path=Name}"></DataGridTextColumn>
-                    <DataGridTextColumn Width="*" Header="Категория" Binding="{Binding Path=Category}"></DataGridTextColumn>
-                    <DataGridTextColumn Width="*" Header="Шаблон" Binding="{Binding Path=Template}"></DataGridTextColumn>
+                    <DataGridTextColumn Width="*" Header="Имя" Binding="{Binding Path=Name}" />
+                    <DataGridTextColumn Width="*" Header="Категория" Binding="{Binding Path=Category}" />
                 </DataGrid.Columns>
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Path=IsExists}" Value="True">
+                                <Setter Property="Background" Value="GreenYellow"></Setter>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.RowStyle>
             </DataGrid>
-            <DataGrid AutoGenerateColumns="False" IsReadOnly="True" ItemsSource="{Binding ElementName=ComponentsDataGrid, Path=SelectedItem.(valueObjects:BitrixComponent.Files)}"  Name="FilesDataGrid" Grid.Column="1" Grid.Row="1" Margin="5,0,5,5">
+            <DataGrid AutoGenerateColumns="False" IsReadOnly="True"
+                      ItemsSource="{Binding ElementName=ComponentsDataGrid, 
+                Path=SelectedItem.(valueObjects:BitrixComponent.Files)}"
+                      Name="FilesDataGrid" Grid.Column="1" Grid.Row="1" Margin="5,0,5,5">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Width="*" Header="Имя файла" Binding="{Binding Path=FileName}"></DataGridTextColumn>
+                    <DataGridTextColumn Width="*" Header="Имя файла" Binding="{Binding Path=FileName}" />
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>

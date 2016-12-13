@@ -48,8 +48,7 @@ namespace BitrixComponentsAnalizer.BitrixInfrastructure
                     foreach (var bufferedComponent in componentsBuffer)
                     {
                         if (findedComponent.Category == bufferedComponent.Category &&
-                            findedComponent.Name == bufferedComponent.Name &&
-                            findedComponent.Template == bufferedComponent.Template)
+                            findedComponent.Name == bufferedComponent.Name)
                         {
                             component = bufferedComponent;
                         }
@@ -59,8 +58,7 @@ namespace BitrixComponentsAnalizer.BitrixInfrastructure
                         component = new BitrixComponent
                         {
                             Category = findedComponent.Category,
-                            Name = findedComponent.Name,
-                            Template = findedComponent.Template
+                            Name = findedComponent.Name
                         };
                         componentsBuffer.Add(component);
                     }

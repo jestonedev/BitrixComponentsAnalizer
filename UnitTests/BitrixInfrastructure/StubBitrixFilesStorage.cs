@@ -6,16 +6,16 @@ namespace UnitTests.BitrixInfrastructure
 {
     internal class StubBitrixFilesStorage : IBitrixFilesStorage
     {
-        private IEnumerable<BitrixFile> _files;
+        private IEnumerable<BitrixComponent> _components;
 
-        public IEnumerable<BitrixFile> LoadFiles()
+        public IEnumerable<BitrixComponent> LoadComponents()
         {
-            return _files;
+            return _components;
         }
 
-        public void SaveFiles(IEnumerable<BitrixFile> files)
+        public void SaveComponents(IEnumerable<BitrixComponent> components)
         {
-            _files = files;
+            _components = components;
         }
     }
 }

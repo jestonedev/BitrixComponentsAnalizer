@@ -3,17 +3,20 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
 using BitrixComponentsAnalizer.BitrixInfrastructure;
 using BitrixComponentsAnalizer.BitrixInfrastructure.Interfaces;
 using BitrixComponentsAnalizer.BitrixInfrastructure.ValueObjects;
 using BitrixComponentsAnalizer.Commands;
+using BitrixComponentsAnalizer.Common;
+using BitrixComponentsAnalizer.Common.Interfaces;
 using BitrixComponentsAnalizer.FilesAccess;
 using BitrixComponentsAnalizer.FilesAccess.Interfaces;
 using BitrixComponentsAnalizer.FilesAccess.ValueObjects;
+using Newtonsoft.Json;
 
 namespace BitrixComponentsAnalizer.ViewModels
 {
@@ -83,36 +86,105 @@ namespace BitrixComponentsAnalizer.ViewModels
 
         public ObservableCollection<BitrixComponent> Components
         {
-            get { return _components; }
+            get
+            {
+                return _components ?? (_components = new ObservableCollection<BitrixComponent>());
+            }
             set
             {
                 _components = value;
+                _components.CollectionChanged += (s, e) =>
+                {
+                    RaisePropertyChanged("Components");
+                    RaisePropertyChanged("FilteredComponents");
+                };
                 RaisePropertyChanged("Components");
+                RaisePropertyChanged("FilteredComponents");
             }
         }
 
         private ObservableCollection<BitrixComponent> _components;
 
+        public ObservableCollection<BitrixComponent> FilteredComponents
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(Filter))
+                {
+                    return Components;
+                }
+                var filter = Filter.ToUpperInvariant();
+                return new ObservableCollection<BitrixComponent>(_components.
+                    Where(c => (c.Name != null && c.Name.ToUpperInvariant().Contains(filter)) ||
+                               (c.Category != null && c.Category.ToUpperInvariant().Contains(filter)) ||
+                               (c.Files != null && c.Files.Any(f =>
+                                   f.FileName != null && f.FileName.ToUpperInvariant().Contains(filter)))));
+            }
+        }
+
+        public string Filter
+        {
+            get
+            {
+                return _filter;
+            }
+            set
+            {
+                _filter = value;
+                RaisePropertyChanged("Filter");
+                RaisePropertyChanged("FilteredComponents");
+            }
+        }
+
+        private string _filter;
+
+        public ObservableCollection<BitrixTemplate> Templates
+        {
+            get
+            {
+                return _templates ?? (_templates = new ObservableCollection<BitrixTemplate>());
+            }
+            set
+            {
+                _templates = value;
+                _templates.CollectionChanged += (s, e) =>
+                {
+                    RaisePropertyChanged("Templates");
+                };
+                RaisePropertyChanged("Templates");
+            }
+        }
+
+        private ObservableCollection<BitrixTemplate> _templates;
+
         private readonly IFileSystem _fileSystem;
-        private readonly IBitrixFilesStorage _bitrixFilesStorage;
         private readonly IFileLoader _fileLoader;
+        private readonly IBitrixFilesStorage _bitrixFilesStorage;
         private readonly IBitrixFilesComponentsBinder _bitrixFilesComponentsBinder;
+        private readonly IBitrixComponentValidator _bitrixComponentValidator;
+        private readonly ILogger _logger;
+        private readonly ISettings _settings;
 
         private readonly SynchronizationContext _context = SynchronizationContext.Current;
 
         public MainWindowViewModel()
-            : this(new FileSystem(), 
-                new BitrixFilesStorage("last_analize.json", new FileSystem()),
+            : this(new FileSystem(),
                 new FileLoader(new FileSystem()),
-                new BitrixFilesComponentsBinder(new BitrixComponentsExtractor(), new FileSystem()))
+                new BitrixFilesStorage("last_analize.json", new FileSystem()),
+                new BitrixFilesComponentsBinder(new BitrixComponentsExtractor(), new FileSystem()),
+                new BitrixComponentValidator(new FileSystem()), 
+                new MessageBoxLogger(), 
+                new ApplicationSettings())
         {
         }
 
         public MainWindowViewModel(
             IFileSystem fileSytem,
-            IBitrixFilesStorage bitrixFilesStorage,
             IFileLoader fileLoader,
-            IBitrixFilesComponentsBinder bitrixFilesComponentsBinder)
+            IBitrixFilesStorage bitrixFilesStorage,
+            IBitrixFilesComponentsBinder bitrixFilesComponentsBinder,
+            IBitrixComponentValidator bitrixComponentValidator,
+            ILogger logger, ISettings settings)
         {
             if (fileSytem == null)
             {
@@ -120,59 +192,102 @@ namespace BitrixComponentsAnalizer.ViewModels
             }
             _fileSystem = fileSytem;
 
-            if (bitrixFilesStorage == null)
-            {
-                throw new ArgumentNullException("bitrixFilesStorage");
-            }
-            _bitrixFilesStorage = bitrixFilesStorage;
-
             if (fileLoader == null)
             {
                 throw new ArgumentNullException("fileLoader");
             }
             _fileLoader = fileLoader;
 
+            if (bitrixFilesStorage == null)
+            {
+                throw new ArgumentNullException("bitrixFilesStorage");
+            }
+            _bitrixFilesStorage = bitrixFilesStorage;
+
             if (bitrixFilesComponentsBinder == null)
             {
                 throw new ArgumentNullException("bitrixFilesComponentsBinder");
             }
             _bitrixFilesComponentsBinder = bitrixFilesComponentsBinder;
-        }
 
-        public void LoadStoredComponents()
-        {
-            var task = LoadStoredComponentsAsync();
-            task.GetAwaiter().OnCompleted(() =>
+            if (bitrixComponentValidator == null)
             {
-                Components = new ObservableCollection<BitrixComponent>(task.Result);
-            });
+                throw new ArgumentNullException("bitrixComponentValidator");
+            }
+            _bitrixComponentValidator = bitrixComponentValidator;
+
+            if (settings == null)
+            {
+                throw new ArgumentNullException("settings");
+            }
+            _settings = settings;
+
+            if (logger == null)
+            {
+                throw new ArgumentNullException("logger");
+            }
+            _logger = logger;
         }
 
         public async Task<IEnumerable<BitrixComponent>> LoadStoredComponentsAsync()
         {
+            
             return await Task<IEnumerable<BitrixComponent>>.Factory.StartNew(LoadStoredComponentsTask);
         }
 
         private IEnumerable<BitrixComponent> LoadStoredComponentsTask()
         {
-            return BitrixHelper.InvertFilesAndComponentsCollection(_bitrixFilesStorage.LoadFiles());
+            return _bitrixFilesStorage.LoadComponents();
         }
 
-        public void Analize()
+        private CancellationTokenSource _analizeCancelationTokenSource;
+
+        public void CancelAnalize()
         {
-            var task = AnalizeAsync();
-            task.GetAwaiter().OnCompleted(() =>
+            if (_analizeCancelationTokenSource != null)
             {
-                Components = new ObservableCollection<BitrixComponent>(task.Result);
-            });
+                _analizeCancelationTokenSource.Cancel();
+            }
         }
 
         public async Task<IEnumerable<BitrixComponent>> AnalizeAsync()
         {
-            return await Task<IEnumerable<BitrixComponent>>.Factory.StartNew(AnalizeTask);
+            _analizeCancelationTokenSource = new CancellationTokenSource();
+            return await Task<IEnumerable<BitrixComponent>>.Factory.StartNew(AnalizeTask, 
+                _analizeCancelationTokenSource.Token);
         }
 
         private IEnumerable<BitrixComponent> AnalizeTask()
+        {
+            return GetComponents(GetFiles());
+        }
+
+        private IEnumerable<BitrixComponent> GetComponents(IEnumerable<IFile> files)
+        {
+            var components = BitrixHelper.InvertFilesAndComponentsCollection(
+                _bitrixFilesComponentsBinder.BindComponents(files,
+                    (progress, total) =>
+                    {
+                        _context.Post(state =>
+                        {
+                            AnalizeProgressCurrent = ((dynamic) state).progress;
+                            AnalizeProgressTotal = ((dynamic) state).total;
+                            AnalizeProgressIsIndeterminate = false;
+                            AnalizeProgressStatusMessage = "Анализ наличия компонентов";
+                        }, new {progress, total});
+                    })).ToList();
+            var templateAbsolutePaths = Templates.Select(t => 
+                Path.Combine(SelectedPath, "bitrix\\templates\\", t.Name, "components")).ToArray();
+            foreach (var component in components)
+            {
+                component.IsExists = _bitrixComponentValidator.ComponentExists(
+                    component, 
+                    templateAbsolutePaths);
+            }
+            return components;
+        }
+
+        private IEnumerable<IFile> GetFiles()
         {
             if (!_fileSystem.DirectoryExists(SelectedPath))
             {
@@ -201,19 +316,7 @@ namespace BitrixComponentsAnalizer.ViewModels
                         ((dynamic) state).path);
                 }, new {progress, total, path, isIndeterminate});
             });
-            var components = BitrixHelper.InvertFilesAndComponentsCollection(
-                _bitrixFilesComponentsBinder.BindComponents(files,
-                    (progress, total) =>
-                    {
-                        _context.Post(state =>
-                        {
-                            AnalizeProgressCurrent = ((dynamic)state).progress;
-                            AnalizeProgressTotal = ((dynamic)state).total;
-                            AnalizeProgressIsIndeterminate = false;
-                            AnalizeProgressStatusMessage = "Анализ наличия компонентов";
-                        }, new {progress, total});
-                    }));
-            return components;
+            return files;
         }
 
         protected void RaisePropertyChanged(string propertyName)
@@ -231,22 +334,28 @@ namespace BitrixComponentsAnalizer.ViewModels
             get
             {
                 return _analizeCommand ?? (_analizeCommand = new AnalizeCommand(AnalizeAsync,
-                    components =>
-                    {
-                        Components = new ObservableCollection<BitrixComponent>(components);
-                    },
-                    exception =>
-                    {
-                        while (exception.InnerException != null)
-                        {
-                            exception = exception.InnerException;
-                        }
-                        MessageBox.Show(exception.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                        if (!(exception is DirectoryNotFoundException))
-                        {
-                            throw exception;
-                        }
-                    }));
+                    AnalizeCommandComplete, AnalizeCommandError));
+            }
+        }
+
+        protected virtual void AnalizeCommandComplete(IEnumerable<BitrixComponent> components)
+        {
+            Components = new ObservableCollection<BitrixComponent>(components);
+            AnalizeProgressStatusMessage = "Анализ завершен";
+            AnalizeProgressCurrent = 0;
+            AnalizeProgressTotal = int.MaxValue;
+        }
+
+        protected virtual void AnalizeCommandError(Exception exception)
+        {
+            while (exception.InnerException != null)
+            {
+                exception = exception.InnerException;
+            }
+            _logger.Log(exception.Message);
+            if (!(exception is DirectoryNotFoundException))
+            {
+                throw exception;
             }
         }
 
@@ -257,12 +366,30 @@ namespace BitrixComponentsAnalizer.ViewModels
             get
             {
                 return _selectPathCommand ?? (_selectPathCommand = new SelectPathCommand(
-                    new FolderBrowserDialog(), 
-                    path =>
-                {
-                    SelectedPath = path;
-                }));
+                    new FolderBrowserDialog(), SelectPathCommandComplete));
             }
+        }
+
+        protected virtual void SelectPathCommandComplete(string path)
+        {
+            SelectedPath = path;
+        }
+
+        public void SaveState()
+        {
+            _bitrixFilesStorage.SaveComponents(Components);
+            _settings.SetValue("TemplatesJson", JsonConvert.SerializeObject(Templates));
+            _settings.SetValue("SelectedPath", SelectedPath);
+        }
+
+        public async void LoadState()
+        {
+            var templates = JsonConvert.DeserializeObject<ObservableCollection<BitrixTemplate>>
+                (_settings.GetValue("TemplatesJson").ToString());
+            if (templates != null)
+                Templates = templates;
+            SelectedPath = (string)_settings.GetValue("SelectedPath");
+            Components = new ObservableCollection<BitrixComponent>(await LoadStoredComponentsAsync());
         }
     }
 }

@@ -5,9 +5,9 @@ namespace BitrixComponentsAnalizer.BitrixInfrastructure.ValueObjects
 {
     public class BitrixComponent: IComponent
     {
-        public string Template { get; set; }
         public string Category { get; set; }
         public string Name { get; set; }
+        public bool IsExists { get; set; }
         public ReadOnlyCollection<BitrixFile> Files { get; set; }
     }
 }

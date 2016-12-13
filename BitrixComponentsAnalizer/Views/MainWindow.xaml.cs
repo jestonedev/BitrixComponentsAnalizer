@@ -17,7 +17,12 @@ namespace BitrixComponentsAnalizer.Views
 
         private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
         {
-            ((MainWindowViewModel)DataContext).LoadStoredComponents();
+            ((MainWindowViewModel) DataContext).LoadState();
+        }
+
+        private void MainWindow_OnClosed(object sender, System.EventArgs e)
+        {
+            ((MainWindowViewModel) DataContext).SaveState();
         }
     }
 }

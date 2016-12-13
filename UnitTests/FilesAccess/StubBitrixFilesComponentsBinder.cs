@@ -13,13 +13,11 @@ namespace UnitTests.FilesAccess
         {
             var component1 = new BitrixComponent
             {
-                Template = null,
                 Category = "bitrix:news",
                 Name = "news.list"
             };
             var component2 = new BitrixComponent
             {
-                Template = ".default",
                 Category = "bitrix:datetimepicker",
                 Name = "datetimepicker.current"
             };

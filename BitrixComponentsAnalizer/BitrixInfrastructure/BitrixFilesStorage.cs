@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using BitrixComponentsAnalizer.FilesAccess.Interfaces;
 using BitrixComponentsAnalizer.BitrixInfrastructure.Interfaces;
 using BitrixComponentsAnalizer.BitrixInfrastructure.ValueObjects;
@@ -28,17 +30,21 @@ namespace BitrixComponentsAnalizer.BitrixInfrastructure
                 Path.Combine(AppDomain.CurrentDomain.BaseDirectory, storeJsonFileName);
         }
 
-        public IEnumerable<BitrixFile> LoadFiles()
+        public IEnumerable<BitrixComponent> LoadComponents()
         {
             if (!_fileFetcher.FileExists(_storeJsonFileName))
-                return new List<BitrixFile>();
-            return JsonConvert.DeserializeObject<IEnumerable<BitrixFile>>
-                (_fileFetcher.ReadTextFile(_storeJsonFileName));
+                return new List<BitrixComponent>();
+            return JsonConvert.DeserializeObject<IEnumerable<BitrixComponent>>
+                (_fileFetcher.ReadTextFile(_storeJsonFileName)).ToList(); ;
         }
 
-        public void SaveFiles(IEnumerable<BitrixFile> files)
+        public void SaveComponents(IEnumerable<BitrixComponent> components)
         {
-            _fileFetcher.WriteTextFile(_storeJsonFileName, JsonConvert.SerializeObject(files));
+            var settings = new JsonSerializerSettings
+            {
+                PreserveReferencesHandling = PreserveReferencesHandling.Objects
+            };
+            _fileFetcher.WriteTextFile(_storeJsonFileName, JsonConvert.SerializeObject(components, settings));
         }
     }
 }

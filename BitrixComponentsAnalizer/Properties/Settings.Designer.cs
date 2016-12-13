@@ -22,5 +22,29 @@ namespace BitrixComponentsAnalizer.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string TemplatesJson {
+            get {
+                return ((string)(this["TemplatesJson"]));
+            }
+            set {
+                this["TemplatesJson"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string SelectedPath {
+            get {
+                return ((string)(this["SelectedPath"]));
+            }
+            set {
+                this["SelectedPath"] = value;
+            }
+        }
     }
 }

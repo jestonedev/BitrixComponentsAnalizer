@@ -9,8 +9,8 @@ namespace BitrixComponentsAnalizer.BitrixInfrastructure
     {
         public IEnumerable<IComponent> GetComponentsFromCode(string code)
         {
-            const string pattern = @"\$APPLICATION\s*->\s*IncludeComponent\s*\(\s*""(.+?)""\s*,\s*""(.+?)""[\w\W]*?;";
-            const string templatePattern = @"\$APPLICATION\s*->\s*IncludeComponent[\w\W]*?""COMPONENT_TEMPLATE""\s*=\s*>\s*""(.*?)""[\w\W]*?;";
+            const string pattern = @"\$APPLICATION\s*->\s*IncludeComponent\s*\(\s*[""'](.*?)[""']\s*,\s*[""'](.*?)[""'][\w\W]*?;";
+            const string templatePattern = @"\$APPLICATION\s*->\s*IncludeComponent[\w\W]*?[""']COMPONENT_TEMPLATE[""']\s*=\s*>\s*[""'](.*?)[""'][\w\W]*?;";
             var match = Regex.Match(code, pattern, RegexOptions.IgnoreCase);
             var components = new List<IComponent>();
             while (match.Success)
@@ -26,7 +26,6 @@ namespace BitrixComponentsAnalizer.BitrixInfrastructure
                 var componentName = match.Groups[2].Value;
                 components.Add(new BitrixComponent
                 {
-                    Template = componentTemplate,
                     Category = componentCategory,
                     Name = componentName
                 });

@@ -34,6 +34,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>AppIcon.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Threading.Tasks, Version=1.0.12.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.Async.1.0.168\lib\net40\Microsoft.Threading.Tasks.dll</HintPath>
@@ -93,7 +96,9 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="BitrixInfrastructure\BitrixComponentValidator.cs" />
     <Compile Include="BitrixInfrastructure\BitrixHelper.cs" />
+    <Compile Include="BitrixInfrastructure\Interfaces\IBitrixComponentValidator.cs" />
     <Compile Include="BitrixInfrastructure\ValueObjects\BitrixComponent.cs" />
     <Compile Include="BitrixInfrastructure\ValueObjects\BitrixFile.cs" />
     <Compile Include="BitrixInfrastructure\BitrixFilesComponentsBinder.cs" />
@@ -102,8 +107,13 @@
     <Compile Include="BitrixInfrastructure\Interfaces\IComponent.cs" />
     <Compile Include="BitrixInfrastructure\BitrixComponentsExtractor.cs" />
     <Compile Include="BitrixInfrastructure\Interfaces\IComponentsExtractor.cs" />
+    <Compile Include="BitrixInfrastructure\ValueObjects\BitrixTemplate.cs" />
     <Compile Include="Commands\AnalizeCommand.cs" />
     <Compile Include="Commands\SelectPathCommand.cs" />
+    <Compile Include="Common\ApplicationSettings.cs" />
+    <Compile Include="Common\Interfaces\ILogger.cs" />
+    <Compile Include="Common\Interfaces\ISettings.cs" />
+    <Compile Include="Common\MessageBoxLogger.cs" />
     <Compile Include="EventArgs\ComponentsBindProgressChangedEventArg.cs" />
     <Compile Include="FilesAccess\BrowserDialog.cs" />
     <Compile Include="FilesAccess\Interfaces\IFolderBrowserDialog.cs" />
@@ -151,7 +161,12 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Images\AppIcon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="AppIcon.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />
   <Target Name="EnsureBclBuildImported" BeforeTargets="BeforeBuild" Condition="'$(BclBuildImported)' == ''">
