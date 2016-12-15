@@ -24,8 +24,12 @@ namespace BitrixComponentsAnalizer.BitrixInfrastructure
             var exists = true;
             foreach (var path in templateAbsolutePaths)
             {
-                if (!_fileSystem.DirectoryExists(Path.Combine(path, 
-                    component.Category.Replace(":","\\"), component.Name)))
+                var name = component.Name;
+                if (string.IsNullOrEmpty(name))
+                {
+                    name = ".default";
+                }
+                if (!_fileSystem.DirectoryExists(Path.Combine(path, component.Category.Replace(":","\\"), name)))
                 {
                     exists = false;
                 }
