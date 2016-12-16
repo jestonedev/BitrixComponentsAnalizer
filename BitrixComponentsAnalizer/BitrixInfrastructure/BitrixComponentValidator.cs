@@ -19,22 +19,27 @@ namespace BitrixComponentsAnalizer.BitrixInfrastructure
             _fileSystem = fileSystem;
         }
 
-        public bool ComponentExists(BitrixComponent component, string[] templateAbsolutePaths)
+        public bool ComponentExists(BitrixComponent component, string[] templateAbsolutePaths, bool skipDefaultComponentName)
         {
-            var exists = true;
-            foreach (var path in templateAbsolutePaths)
+            var existsIntoSelectedTempaltes = true;
+            var name = component.Name;
+            if (skipDefaultComponentName && (name == ".default" || string.IsNullOrEmpty(name)))
             {
-                var name = component.Name;
-                if (string.IsNullOrEmpty(name))
+                name = "";
+            } else
+            if (string.IsNullOrEmpty(name))
+            {
+                name = ".default";
+            }
+            var category = component.Category.Replace(":", "\\");
+            foreach (var path in templateAbsolutePaths)
+            {   
+                if (!_fileSystem.DirectoryExists(Path.Combine(path, category, name)))
                 {
-                    name = ".default";
-                }
-                if (!_fileSystem.DirectoryExists(Path.Combine(path, component.Category.Replace(":","\\"), name)))
-                {
-                    exists = false;
+                    existsIntoSelectedTempaltes = false;
                 }
             }
-            return exists;
+            return existsIntoSelectedTempaltes;
         }
     }
 }

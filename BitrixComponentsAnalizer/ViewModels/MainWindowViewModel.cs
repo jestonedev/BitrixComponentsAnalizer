@@ -240,21 +240,9 @@ namespace BitrixComponentsAnalizer.ViewModels
             return _bitrixFilesStorage.LoadComponents();
         }
 
-        private CancellationTokenSource _analizeCancelationTokenSource;
-
-        public void CancelAnalize()
-        {
-            if (_analizeCancelationTokenSource != null)
-            {
-                _analizeCancelationTokenSource.Cancel();
-            }
-        }
-
         public async Task<IEnumerable<BitrixComponent>> AnalizeAsync()
         {
-            _analizeCancelationTokenSource = new CancellationTokenSource();
-            return await Task<IEnumerable<BitrixComponent>>.Factory.StartNew(AnalizeTask, 
-                _analizeCancelationTokenSource.Token);
+            return await Task<IEnumerable<BitrixComponent>>.Factory.StartNew(AnalizeTask);
         }
 
         private IEnumerable<BitrixComponent> AnalizeTask()
@@ -276,13 +264,23 @@ namespace BitrixComponentsAnalizer.ViewModels
                             AnalizeProgressStatusMessage = "Анализ наличия компонентов";
                         }, new {progress, total});
                     })).ToList();
-            var templateAbsolutePaths = Templates.Select(t => 
+            if (string.IsNullOrEmpty(SelectedPath)) return components;
+            var templateAbsolutePaths = Templates.Select(t =>
                 Path.Combine(SelectedPath, "bitrix\\templates\\", t.Name, "components")).ToArray();
+            var defaultTemplateAbsolutePath = Path.Combine(SelectedPath, 
+                "bitrix\\templates\\.default\\components");
+            var bitrixAbsolutePath = Path.Combine(SelectedPath, "bitrix\\components");
             foreach (var component in components)
             {
-                component.IsExists = _bitrixComponentValidator.ComponentExists(
-                    component, 
-                    templateAbsolutePaths);
+                component.IsExistsIntoSelectedTemplates = _bitrixComponentValidator.ComponentExists(
+                    component,
+                    templateAbsolutePaths, false);
+                component.IsExistsIntoDefaultTemplate = _bitrixComponentValidator.ComponentExists(
+                    component,
+                    new[] {defaultTemplateAbsolutePath}, false);
+                component.IsExistsIntoBitrix = _bitrixComponentValidator.ComponentExists(
+                    component,
+                    new[] {bitrixAbsolutePath}, true);
             }
             return components;
         }

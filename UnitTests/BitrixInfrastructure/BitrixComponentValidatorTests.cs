@@ -17,12 +17,12 @@ namespace UnitTests.BitrixInfrastructure
             {
                 Name = "Any",
                 Category = "Name"
-            }, new[] { ".default" }));
+            }, new[] { ".default" }, false));
             Assert.AreEqual(false, validator.ComponentExists(new BitrixComponent
             {
                 Name = "Notexists",
                 Category = "Name",
-            }, new[] { ".default" }));
+            }, new[] { ".default" }, false));
         }
 
         [TestMethod]

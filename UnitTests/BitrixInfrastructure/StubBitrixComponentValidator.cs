@@ -6,7 +6,7 @@ namespace UnitTests.BitrixInfrastructure
 {
     internal class StubBitrixComponentValidator: IBitrixComponentValidator
     {
-        public bool ComponentExists(BitrixComponent component, string[] templateAbsolutePaths)
+        public bool ComponentExists(BitrixComponent component, string[] templateAbsolutePaths, bool skipDefaultComponentName)
         {
             return true;
         }

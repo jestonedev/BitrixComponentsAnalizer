@@ -74,8 +74,8 @@ namespace UnitTests.ViewModels
             };
             var components = viewModel.AnalizeAsync().Result.ToList();
             Assert.AreEqual(2, components.Count);
-            Assert.AreEqual(true, components[0].IsExists);
-            Assert.AreEqual(true, components[1].IsExists);
+            Assert.AreEqual(true, components[0].IsExistsIntoSelectedTemplates);
+            Assert.AreEqual(true, components[1].IsExistsIntoSelectedTemplates);
         }
 
         [TestMethod]
@@ -702,13 +702,13 @@ namespace UnitTests.ViewModels
                         {
                             Name = "ComponentName",
                             Category = "ComponentCategory",
-                            IsExists = false,
+                            IsExistsIntoSelectedTemplates = false,
                         },
                         new BitrixComponent
                         {
                             Name = "ComponentName2",
                             Category = "ComponentCategory2",
-                            IsExists = true,
+                            IsExistsIntoSelectedTemplates = true,
                             Files = new ReadOnlyCollection<BitrixFile>(
                                 new List<BitrixFile>
                                 {
@@ -748,7 +748,8 @@ namespace UnitTests.ViewModels
             {
                 Assert.AreEqual(viewModel.Components[i].Name, anyViewModel.Components[i].Name);
                 Assert.AreEqual(viewModel.Components[i].Category, anyViewModel.Components[i].Category);
-                Assert.AreEqual(viewModel.Components[i].IsExists, anyViewModel.Components[i].IsExists);
+                Assert.AreEqual(viewModel.Components[i].IsExistsIntoSelectedTemplates, 
+                    anyViewModel.Components[i].IsExistsIntoSelectedTemplates);
                 Assert.AreEqual(
                     viewModel.Components[i].Files != null ?
                     viewModel.Components[i].Files.Count : 0,

@@ -71,8 +71,17 @@
                 <DataGrid.RowStyle>
                     <Style TargetType="DataGridRow">
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding Path=IsExists}" Value="True">
-                                <Setter Property="Background" Value="GreenYellow"></Setter>
+                            <DataTrigger Binding="{Binding Path=IsExistsIntoBitrix}" Value="True">
+                                <Setter Property="Background" Value="Orange"></Setter>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Path=IsExistsIntoDefaultTemplate}" Value="True">
+                                <Setter Property="Background" Value="Yellow"></Setter>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Path=IsExistsIntoSelectedTemplates}" Value="True">
+                                <Setter Property="Background" Value="White"></Setter>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Path=IsExistsAnyWhere}" Value="False">
+                                <Setter Property="Background" Value="LightCoral"></Setter>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>

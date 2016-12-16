@@ -7,7 +7,15 @@ namespace BitrixComponentsAnalizer.BitrixInfrastructure.ValueObjects
     {
         public string Category { get; set; }
         public string Name { get; set; }
-        public bool IsExists { get; set; }
+        public bool IsExistsIntoSelectedTemplates { get; set; }
+        public bool IsExistsIntoDefaultTemplate { get; set; }
+        public bool IsExistsIntoBitrix { get; set; }
+
+        public bool IsExistsAnyWhere
+        {
+            get { return IsExistsIntoSelectedTemplates || IsExistsIntoDefaultTemplate || IsExistsIntoBitrix; }
+        }
+
         public ReadOnlyCollection<BitrixFile> Files { get; set; }
     }
 }

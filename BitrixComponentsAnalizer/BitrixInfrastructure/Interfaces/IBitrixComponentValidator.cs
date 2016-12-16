@@ -4,6 +4,6 @@ namespace BitrixComponentsAnalizer.BitrixInfrastructure.Interfaces
 {
     public interface IBitrixComponentValidator
     {
-        bool ComponentExists(BitrixComponent component, string[] templateAbsolutePaths);
+        bool ComponentExists(BitrixComponent component, string[] templateAbsolutePaths, bool skipDefaultComponentName);
     }
 }
